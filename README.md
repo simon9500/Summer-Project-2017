@@ -1,6 +1,12 @@
 # Summer Project 2017
 Work done in Python for the summer project in the School of Physics in the summer of 2017.
 
+`findSN.py` allows the user to change the time differences between detectors (in source code) and find the corresponding Supernova.  This was the first program written, when I was trying to get to grip with the geometry and mathematics of the problem.
+
+`sampleplotSN.py` is a more complex simulation expanding on previous work by adding uncertainties.  Or get it touch if you have questions about it. 
+
+`sample_dt.py` samples neutrino start times from real detector data.
+
 To run one of the programs as usual type:
 
 `python yourfilename.py <optional input files>`
