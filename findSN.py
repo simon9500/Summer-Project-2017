@@ -1,11 +1,7 @@
 import numpy as np
-import math
-import matplotlib as mpl
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 from astropy import units as u
 from astropy.coordinates import SkyCoord
-import copy
 import SNfunctions as SN
 
 # This code finds the location in the sky of a SN based on the neutrino ToA differences observed in different
@@ -98,7 +94,7 @@ if __name__=='__main__':
     plane_10 = SN.produce_plane(GS_pos, ICE_pos, dT_GS_ICE, SN_dist, c_light)
 
     # Define equation of sphere centred on earth
-    sphere = np.array([0.,0.,0.,SN_dist])
+    sphere = np.array([0., 0., 0., SN_dist])
 
     """
     Finally, we calculate the position of the SN.
@@ -124,7 +120,7 @@ if __name__=='__main__':
     print "------------------------------------------------------"
 
 
-    # Finding the line of intersection between each plane
+    # Finding the line of intersection between a selection of planes
     intersect_line_1 = SN.plane_intersection(plane_1, plane_2)
     intersect_line_2 = SN.plane_intersection(plane_2, plane_3)
     intersect_line_3 = SN.plane_intersection(plane_1, plane_3)
@@ -146,7 +142,7 @@ if __name__=='__main__':
     point13, point14 = SN.intersection_2planes_sphere(intersect_line_7, sphere)
     point15, point16 = SN.intersection_2planes_sphere(intersect_line_8, sphere)
     point17, point18 = SN.intersection_2planes_sphere(intersect_line_9, sphere)
-    point19, point20 = SN.intersection_2planes_sphere(intersect_line_4, sphere)
+    point19, point20 = SN.intersection_2planes_sphere(intersect_line_10, sphere)
 
     # Arrays to hold the circle-circle pair intersection locations (in latitude and longitude)
     points1 = np.array([SN.lat_long_from_xyz(point1), SN.lat_long_from_xyz(point2)])
@@ -160,20 +156,8 @@ if __name__=='__main__':
     points9 = np.array([SN.lat_long_from_xyz(point17), SN.lat_long_from_xyz(point18)])
     points10 = np.array([SN.lat_long_from_xyz(point19), SN.lat_long_from_xyz(point20)])
 
-    # Array holding the long/lat of all intersection points
-    all_points_lat_long = np.array([SN.lat_long_from_xyz(point1),SN.lat_long_from_xyz(point2),
-                                    SN.lat_long_from_xyz(point3),SN.lat_long_from_xyz(point4),
-                                    SN.lat_long_from_xyz(point5),SN.lat_long_from_xyz(point6)
-                                    ,SN.lat_long_from_xyz(point7),SN.lat_long_from_xyz(point8)
-                                    ,SN.lat_long_from_xyz(point9),SN.lat_long_from_xyz(point10)
-                                    ,SN.lat_long_from_xyz(point11),SN.lat_long_from_xyz(point12)
-                                    ,SN.lat_long_from_xyz(point13),SN.lat_long_from_xyz(point14)
-                                    ,SN.lat_long_from_xyz(point15),SN.lat_long_from_xyz(point16)
-                                    ,SN.lat_long_from_xyz(point17),SN.lat_long_from_xyz(point18)
-                                    ,SN.lat_long_from_xyz(point19),SN.lat_long_from_xyz(point20)])
-
     # Initialise variable to hold SN latitude/longitude
-    SN_position = [0.,0.]
+    SN_position = [0., 0.]
 
     # Locate the SN
     for p1 in points1:
@@ -263,13 +247,14 @@ if __name__=='__main__':
     ra_rad_GS_ICE, dec_rad_GS_ICE = SN.circle_plot_points_astropy(N_circle_points,
                                                                GS_pos, ICE_pos, c_light, dT_GS_ICE, SN_dist)
 
-    # As last step we set up the plotting environment with matplotlib using the
+    # As a last step we set up the plotting environment with matplotlib using the
     # Aitoff projection with a specific title, a grid, filled circles as markers with
     # a markersize of 2 and an alpha value of 0.3.
     plt.figure(figsize=(8,4.2))
     plt.subplot(111, projection="aitoff")
     plt.title("Aitoff projection", y=1.08)
     plt.grid(True)
+
     # Plot all circles
     plt.plot(ra_rad_LZ_GS, dec_rad_LZ_GS, 'o', color='green', markersize=2., alpha=0.6, label='LZ-GS circle')
     plt.plot(ra_rad_LZ_SK, dec_rad_LZ_SK, 'o', color='red', markersize=2., alpha=0.6, label ='LZ-SK circle')
@@ -281,8 +266,10 @@ if __name__=='__main__':
     plt.plot(ra_rad_SNO_GS, dec_rad_SNO_GS, 'o', color='#35E781', markersize=2., alpha=0.6, label='SNO-GS circle')
     plt.plot(ra_rad_SNO_ICE, dec_rad_SNO_ICE, 'o', color='#C31AE5', markersize=2., alpha=0.6, label='SNO-ICE circle')
     plt.plot(ra_rad_GS_ICE, dec_rad_GS_ICE, 'o', color='#A0F40D', markersize=2., alpha=0.6, label='GS-ICE circle')
+
     # Plot all detectors
     plt.plot(ra_rad_Det, dec_rad_Det, 'o', color='black', markersize=4, alpha=1.0, label='Detectors')
+
     # Plot the SN
     plt.plot(ra_rad_SN, dec_rad_SN, 'o', color='orange', markersize=6, alpha=1.0, label='SN')
     plt.subplots_adjust(top=0.95, bottom=0.0)

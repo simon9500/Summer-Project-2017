@@ -7,6 +7,7 @@ import random
 from time import time
 from ROOT import TCanvas, TH2D, gStyle
 from scipy.optimize import curve_fit
+from SNfunctions import distance_between_3d_points, point_on_3d_circle, lat_long_from_xyz
 
 # This code samples from the SN neutrino distributions and produces a start time each .  The dt values are
 # changed to account for this and the resulting circle points are added to a 2D aitoff histogram, which is saved
@@ -67,6 +68,29 @@ def find_start_time_alternative_method(total_events_scaled, total_events,
         if first_encounter < start_time:
             start_time = first_encounter
     return start_time
+
+# Function to produce a list of longitudes and latitudes of a 3D circle based on
+# the ToA difference between 2 detectors
+def circle_plot_points(N_points, pos1, pos2, c_light, dT, SN_dist):
+    angle_list = np.linspace(0,2*np.pi,N_points)
+    # Circle parameters
+    theta = math.acos(dT*c_light/distance_between_3d_points(pos1, pos2))
+    radius = SN_dist*math.sin(theta)
+    circle_normal = pos2-pos1
+    circle_normal /= np.linalg.norm(circle_normal) # Normalize the plane normal vector
+    circle_centre = SN_dist*math.cos(theta)*circle_normal
+    long_list = np.empty(N_points)
+    lat_list = np.empty(N_points)
+    # Fill arrays
+    for i in range(len(angle_list)):
+        angle = angle_list[i]
+        current_point = point_on_3d_circle(circle_normal, circle_centre, radius, angle)
+        current_lat_long = lat_long_from_xyz(current_point)
+        lat_list[i] = current_lat_long[0]
+        long_list[i] = current_lat_long[1]
+    lat_list = lat_list
+    long_list = long_list
+    return lat_list, long_list
 
 # Run the following code only if the code is being ran directly, ie. not being imported
 if __name__ == '__main__':
@@ -291,62 +315,62 @@ if __name__ == '__main__':
         # Create set of circle points (lat/long) using adjusted dT values
         # The conditional statements are included to ensure the adjusted dT vales are appropriate
         if abs(dT1) <= max_dT_LZ_GS:
-            lat_LZ_GS, long_LZ_GS = SN.circle_plot_points(N_circle_points,
-                                                          LZ_pos, GS_pos, c_light, dT1, SN_dist)
+            lat_LZ_GS, long_LZ_GS = circle_plot_points(N_circle_points,
+                                                       LZ_pos, GS_pos, c_light, dT1, SN_dist)
             # Fill histogram with circle long/lats (weight = 1)
             for i in range(N_circle_points):
                 roothist.Fill(long_LZ_GS[i], lat_LZ_GS[i], 1)
         if abs(dT2) <= max_dT_LZ_SNO:
-            lat_LZ_SNO, long_LZ_SNO = SN.circle_plot_points(N_circle_points,
-                                                            LZ_pos, SNO_pos, c_light, dT2, SN_dist)
+            lat_LZ_SNO, long_LZ_SNO = circle_plot_points(N_circle_points,
+                                                         LZ_pos, SNO_pos, c_light, dT2, SN_dist)
             # Fill histogram with circle long/lats (weight = 1)
             for i in range(N_circle_points):
                 roothist.Fill(long_LZ_SNO[i], lat_LZ_SNO[i], 1)
         if abs(dT3) <= max_dT_LZ_SK:
-            lat_LZ_SK, long_LZ_SK = SN.circle_plot_points(N_circle_points,
-                                                          LZ_pos, SK_pos, c_light, dT3, SN_dist)
+            lat_LZ_SK, long_LZ_SK = circle_plot_points(N_circle_points,
+                                                       LZ_pos, SK_pos, c_light, dT3, SN_dist)
             # Fill histogram with circle long/lats (weight = 1)
             for i in range(N_circle_points):
                 roothist.Fill(long_LZ_SK[i], lat_LZ_SK[i], 1)
         if abs(dT4) <= max_dT_LZ_ICE:
-            lat_LZ_ICE, long_LZ_ICE = SN.circle_plot_points(N_circle_points,
-                                                            LZ_pos, ICE_pos, c_light, dT4, SN_dist)
+            lat_LZ_ICE, long_LZ_ICE = circle_plot_points(N_circle_points,
+                                                         LZ_pos, ICE_pos, c_light, dT4, SN_dist)
             # Fill histogram with circle long/lats (weight = 1)
             for i in range(N_circle_points):
                 roothist.Fill(long_LZ_ICE[i], lat_LZ_ICE[i], 1)
         if abs(dT5) <= max_dT_SK_SNO:
-            lat_SK_SNO, long_SK_SNO = SN.circle_plot_points(N_circle_points,
-                                                            SK_pos, SNO_pos, c_light, dT5, SN_dist)
+            lat_SK_SNO, long_SK_SNO = circle_plot_points(N_circle_points,
+                                                         SK_pos, SNO_pos, c_light, dT5, SN_dist)
             # Fill histogram with circle long/lats (weight = 1)
             for i in range(N_circle_points):
                 roothist.Fill(long_SK_SNO[i], lat_SK_SNO[i], 1)
         if abs(dT6) <= max_dT_SK_GS:
-            lat_SK_GS, long_SK_GS = SN.circle_plot_points(N_circle_points,
-                                                            SK_pos, GS_pos, c_light, dT6, SN_dist)
+            lat_SK_GS, long_SK_GS = circle_plot_points(N_circle_points,
+                                                       SK_pos, GS_pos, c_light, dT6, SN_dist)
             # Fill histogram with circle long/lats (weight = 1)
             for i in range(N_circle_points):
                 roothist.Fill(long_SK_GS[i], lat_SK_GS[i], 1)
         if abs(dT7) <= max_dT_SK_ICE:
-            lat_SK_ICE, long_SK_ICE = SN.circle_plot_points(N_circle_points,
-                                                            SK_pos, ICE_pos, c_light, dT7, SN_dist)
+            lat_SK_ICE, long_SK_ICE = circle_plot_points(N_circle_points,
+                                                         SK_pos, ICE_pos, c_light, dT7, SN_dist)
             # Fill histogram with circle long/lats (weight = 1)
             for i in range(N_circle_points):
                 roothist.Fill(long_SK_ICE[i], lat_SK_ICE[i], 1)
         if abs(dT8) <= max_dT_SNO_GS:
-            lat_SNO_GS, long_SNO_GS = SN.circle_plot_points(N_circle_points,
-                                                            SNO_pos, GS_pos, c_light, dT8, SN_dist)
+            lat_SNO_GS, long_SNO_GS = circle_plot_points(N_circle_points,
+                                                         SNO_pos, GS_pos, c_light, dT8, SN_dist)
             # Fill histogram with circle long/lats (weight = 1)
             for i in range(N_circle_points):
                 roothist.Fill(long_SNO_GS[i], lat_SNO_GS[i], 1)
         if abs(dT9) <= max_dT_SNO_ICE:
-            lat_SNO_ICE, long_SNO_ICE = SN.circle_plot_points(N_circle_points,
-                                                            SNO_pos, ICE_pos, c_light, dT9, SN_dist)
+            lat_SNO_ICE, long_SNO_ICE = circle_plot_points(N_circle_points,
+                                                           SNO_pos, ICE_pos, c_light, dT9, SN_dist)
             # Fill histogram with circle long/lats (weight = 1)
             for i in range(N_circle_points):
                 roothist.Fill(long_SNO_ICE[i], lat_SNO_ICE[i], 1)
         if abs(dT10) <= max_dT_GS_ICE:
-            lat_GS_ICE, long_GS_ICE = SN.circle_plot_points(N_circle_points,
-                                                            GS_pos, ICE_pos, c_light, dT10, SN_dist)
+            lat_GS_ICE, long_GS_ICE = circle_plot_points(N_circle_points,
+                                                         GS_pos, ICE_pos, c_light, dT10, SN_dist)
             # Fill histogram with circle long/lats (weight = 1)
             for i in range(N_circle_points):
                 roothist.Fill(long_GS_ICE[i], lat_GS_ICE[i], 1)
